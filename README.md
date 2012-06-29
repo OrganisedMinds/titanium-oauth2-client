@@ -94,6 +94,13 @@ function doSomethingOnApi(success, err) {
 AuthModule.authorize(doSomethingOnApi);
 ```
 
+Variable err will be filled up with standard HTTP status code of failure.
+http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+or
+* 1000 = cannot get grant code
+* 1001 = cannot get access token and refresh token
+We gona improve error handling soon.
+
 ## Contributing to titanium-oauth2-client
 
 * Be sure you have Doorkeeper running and you registered your app
