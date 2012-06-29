@@ -23,7 +23,7 @@ This project is suited for [Doorkeeper](https://github.com/applicake/doorkeeper)
 #### Getting module
 
 ```
-git clone git://github.com/JiriChara/titanium-oauth2-client.git /your-project/Resources/lib/oauth_adapter
+git clone git://github.com/OrganisedMinds/titanium-oauth2-client.git /your-project/Resources/lib/oauth_adapter
 ```
 
 #### Use it in you app.js
@@ -104,7 +104,7 @@ We gona improve error handling soon.
 ## Contributing to titanium-oauth2-client
 
 * Be sure you have Doorkeeper running and you registered your app
-* Check out the latest master to make sure the feature hasn’t been implemented or the bug hasn’t been fixed yet.
+* Check out the latest develop to make sure the feature hasn’t been implemented or the bug hasn’t been fixed yet.
 * Check out the issue tracker to make sure someone already hasn’t requested it and/or contributed it.
 * Fork the project
 * Start feature/bugfix branch
