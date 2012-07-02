@@ -86,7 +86,7 @@ var AuthModule = {};
 				top: 5,
 				right: 20
 			});
-			var url = String.format(AuthModule.authServer + '/oauth/authorize?response_type=code&client_id=%s&redirect_uri=%s',
+			var url = String.format(AuthModule.authServer + 'oauth/authorize?response_type=code&client_id=%s&redirect_uri=%s',
 				AuthModule.clientId,
 				encodeURIComponent(AuthModule.redirectUri))
 
@@ -170,7 +170,7 @@ var AuthModule = {};
 				grant_type: 'authorization_code'
 			};
 			Ti.App.Properties.setString('grant_code', undefined);
-			AuthModule.xhr.open('POST',  AuthModule.authServer + '/oauth/token');
+			AuthModule.xhr.open('POST',  AuthModule.authServer + 'oauth/token');
 			AuthModule.xhr.onload = function(e) {
 				AuthModule.gotTokensCallback(true, JSON.parse(AuthModule.xhr.responseText),  authSuccessCallback);
 			};
@@ -188,12 +188,14 @@ var AuthModule = {};
 				client_id: AuthModule.clientId,
 				client_secret: AuthModule.clientSecret,
 				refresh_token: Ti.App.Properties.getString('refresh_token'),
-				grant_type: 'refresh_token'
+				grant_type: 'refresh_token',
+				redirect_uri: AuthModule.redirectUri
 			};
 			AuthModule.xhr.open('POST', AuthModule.authServer + 'oauth/token');
 
 			AuthModule.xhr.onload = function(e) {
 				var responseHash = JSON.parse(AuthModule.xhr.responseText);
+				alert(AuthModule.xhr.responseText);
 				/* Save new access token */
 				Ti.App.Properties.setString('access_token', responseHash.access_token);
 				/* Set absolutely expires_in for new access_token */
@@ -202,7 +204,11 @@ var AuthModule = {};
 				AuthModule.authorize(authSuccessCallback);
 			};
 			AuthModule.xhr.onerror = function(e) {
-				authSuccessCallback(false, AuthModule.xhr.status);
+				Ti.API.debug(AuthModule.xhr.responseText);
+				Ti.App.Properties.setString('access_token', undefined);
+				Ti.App.Properties.setString('refresh_token', undefined);
+				Ti.App.Properties.setDouble('expires_in', undefined);
+				AuthModule.openAuthorizationCodePopup(authSuccessCallback);
 			};
 			AuthModule.xhr.send(dataToPost);
 		};
