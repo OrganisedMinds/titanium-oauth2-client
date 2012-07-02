@@ -207,7 +207,7 @@ var AuthModule = {};
 				Ti.API.debug(AuthModule.xhr.responseText);
 				Ti.App.Properties.setString('access_token', undefined);
 				Ti.App.Properties.setString('refresh_token', undefined);
-				Ti.App.Properties.setDouble('expires_in', undefined);
+				Ti.App.Properties.setDouble('expires_in', null);
 				AuthModule.openAuthorizationCodePopup(authSuccessCallback);
 			};
 			AuthModule.xhr.send(dataToPost);
