@@ -37,12 +37,12 @@ Ti.include('lib/oauth_adapter/auth_module.js');
     client_id: <YOUR_CLIENT_ID>,
     client_secret: <YOUR_CLIENT_SECRET>),
     redirect_uri: <REDIRECT_URI>,
-    resource_server_url: <YOUR_RESOURCE_SERVER_URL> // with slash on the end
+    auth_server_url: <YOUR_AUTH_URL> // with slash on the end
   });
   /* It will call main function with true parameter when user is authorized */
-  AuthModule.authorize(main);
+  AuthModule.authorize(startTheApp);
   
-  function main(success, err) {
+  function startTheApp(success, err) {
     /* If user is authorized */
     if(success) {
       // Do what ever you want! User has access to your resource server
@@ -57,10 +57,27 @@ Ti.include('lib/oauth_adapter/auth_module.js');
 #### Make a request to you API
 
 ```javascript
-/* Create a client */
-var xhr = Ti.Network.createHTTPClient();
+/* I recommend to create your own default client based on Titanium HTTPClient */
+/* For example like this: */
+function DefaultClient(opts) {
+  var instance = Ti.Network.createHTTPClient(opts);
 
-xhr.open('PUT', 'http://yourapi.com/personal/details/');
+  /* Add sendRequest function */
+  instance.sendRequest = function(success, opts) {
+    if(success) {
+      instance.setRequestHeader('Authorization', 'Bearer ' + Ti.App.Properties.getString('access_token'));
+        instance.send(opts);
+      } else {
+        /* opts will contain error code */
+        alert(opts);
+      };
+  }
+
+  return instance;
+}
+/* Create a client */
+var xhr = new DefaultClient({timeout: 5000});
+
 /* Prepare for response */
 xhr.onload = function() {
   /* tada! */
@@ -75,8 +92,9 @@ data = {
   last_name: "Corleone"
 };
 
-/* This will send request to your API including access_token */
-AuthModule.sendRequest({xhr: xhr, data: data});
+/* Send authorized request to your API */
+xhr.open('PUT', 'http://yourapi.com/personal/details/');
+AuthModule.authorize(xhr.sendRequest, JSON.stringify(data));
 
 /* If you want to call your own function which interacts with protected
  * resources, than do easily like this:
