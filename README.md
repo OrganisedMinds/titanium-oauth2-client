@@ -26,81 +26,45 @@ This project is suited for [Doorkeeper](https://github.com/applicake/doorkeeper)
 git clone git://github.com/OrganisedMinds/titanium-oauth2-client.git /your-project/Resources/lib/oauth_adapter
 ```
 
-#### Use it in you app.js
-
-```javascript
-Ti.include('lib/oauth_adapter/auth_module.js');
-
-(function() {
-  /* Initialize AuthModule */
-  AuthModule.init({
-    client_id: <YOUR_CLIENT_ID>,
-    client_secret: <YOUR_CLIENT_SECRET>),
-    redirect_uri: <REDIRECT_URI>,
-    resource_server_url: <YOUR_RESOURCE_SERVER_URL> // with slash on the end
-  });
-  /* It will call main function with true parameter when user is authorized */
-  AuthModule.authorize(main);
-  
-  function main(success, err) {
-    /* If user is authorized */
-    if(success) {
-      // Do what ever you want! User has access to your resource server
-    } else {
-      // User is not allowed to access resources server
-      alert(err);
-    }
-  };
-})();
-```
-
 #### Make a request to you API
 
 ```javascript
-/* Create a client */
-var xhr = Ti.Network.createHTTPClient();
+Ti.include('lib/auth_module.js');
 
-xhr.open('PUT', 'http://yourapi.com/personal/details/');
-/* Prepare for response */
-xhr.onload = function() {
-  /* tada! */
-};
-xhr.onerror = function() {
-  /* when things go wrong */
-};
+/* Init Auth Module */
+Ti.App.authModule = AuthModule.init({
+  client_id:       "your_client_id",
+  client_secret:   "your_client_secret",
+  redirect_uri:    "http://your_redirect_uri:3000/",
+  auth_server_url: "http://your_auth_server_url:3000/"
+});
 
-/* Update your name for instance */
-data = {
-  first_name: "Vito",
-  last_name: "Corleone"
-};
+/* Create a request to your resource server */
+var updateMyName = new Request({
+	method: 'PUT',
+	url:    'http://your_resource_server_url/personal/details',
+	ext:    {
+	  first_name: "Vito",
+	  last_name:  "Corleone"
+	}
+});
 
-/* This will send request to your API including access_token */
-AuthModule.sendRequest({xhr: xhr, data: data});
+/* Set your own onload and onerror methods */
+updateMyName.xhr.onload = function(e) {
+  // do something
+  /* Set request as done */
+  updateMyName.setAsDone();
+}
+updateMyName.xhr.error = function(e) {
+  // do something
+  /* Set request as done */
+  updateMyName.setAsDone();
+}
 
-/* If you want to call your own function which interacts with protected
- * resources, than do easily like this:
- */
-
-function doSomethingOnApi(success, err) {
-  if(success) {
-    // you have permitions
-  } else {
-    // you have no permitions
-    alert(err);
-  }
-};
-/* You can than call it like this: */
-AuthModule.authorize(doSomethingOnApi);
+/* Send the request (this will start max. 3 clients and it will queue all other request till user is authorized */
+RequestCountLimiter.add(updateMyName);
+RequestCountLimiter.checkState();
 ```
-
-Variable err will be filled up with standard HTTP status code of failure.
-http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-or
-* 1000 = cannot get grant code
-* 1001 = cannot get access token and refresh token
-We gona improve error handling soon.
-
 ## Contributing to titanium-oauth2-client
 
 * Be sure you have Doorkeeper running and you registered your app
