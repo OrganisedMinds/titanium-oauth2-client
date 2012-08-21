@@ -64,6 +64,7 @@ updateMyName.xhr.error = function(e) {
 /* Send the request (this will start max. 3 clients and it will queue all other request till user is authorized */
 RequestCountLimiter.add(updateMyName);
 RequestCountLimiter.checkState();
+
 ```
 ## Contributing to titanium-oauth2-client
 
